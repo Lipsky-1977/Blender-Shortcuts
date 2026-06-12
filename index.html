@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Blender 快捷键查询</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><rect width=%2732%27 height=%2732%27 rx=%274%27 fill=%27%232a2a2a%27/><text x=%2716%27 y=%2722%27 font-size=%2716%27 font-weight=%27bold%27 fill=%27%23ea7600%27 text-anchor=%27middle%27>B</text></svg>">
+<style>
+:root{--bg:#f5f5f7;--surface:#fff;--surface2:#f0f0f2;--border:#e0e0e4;--text:#1d1d1f;--text2:#8e8e93;--accent:#ea7600;--accent2:#cc6600;--accent-bg:rgba(234,118,0,.12);--radius:10px;--shadow:0 .5px 2px rgba(0,0,0,.06),0 1px 4px rgba(0,0,0,.04)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.header{background:linear-gradient(180deg,#1a1a2e 0%,#16213e 100%);padding:0 0 10px 0;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.2)}
+.header-top{display:flex;align-items:center;gap:8px;padding:10px 14px 8px}
+.header-top h1{font-size:16px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px}
+.header-top h1 span{color:var(--accent)}
+.header-top .badge{font-size:10px;color:#98989d;background:rgba(255,255,255,.08);padding:1px 7px;border-radius:10px;margin-left:2px}
+.search-wrap{position:relative;margin:0 14px}
+.search-wrap .icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#8e8e93;pointer-events:none}
+.search-bar{-webkit-appearance:none;appearance:none;width:100%;padding:9px 12px 9px 34px;border-radius:8px;border:1px solid #3a3a5c;background:#2a2a4e;color:#f5f5f7;font-size:15px;outline:none;transition:border .2s,background .2s}
+.search-bar::placeholder{color:#8e8e93;font-size:14px}
+.search-bar:focus{border-color:var(--accent);background:#1a1a3e}
+.tabs{display:flex;gap:5px;overflow-x:auto;padding:8px 14px 4px;scrollbar-width:none;-ms-overflow-style:none;scroll-behavior:smooth;background:var(--bg)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:6px 13px;border-radius:16px;border:1px solid var(--border);background:var(--surface);font-size:12px;cursor:pointer;transition:all .2s;color:var(--text2);white-space:nowrap;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.tab:active{transform:scale(.95)}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+.tab .cnt{font-size:10px;opacity:.65;margin-left:3px}
+.stats{font-size:12px;color:var(--text2);padding:8px 14px 6px;display:flex;justify-content:space-between;align-items:center}
+.grid{display:flex;flex-direction:column;gap:5px;padding:0 12px 60px}
+.item{display:flex;align-items:flex-start;gap:10px;background:var(--surface);border-radius:var(--radius);padding:10px 12px;border:1px solid var(--border);cursor:default;transition:border .15s,box-shadow .15s,transform .1s;touch-action:manipulation;animation:fadeIn .18s ease-out}
+.item:active{transform:scale(.98)}
+.keys{display:flex;gap:3px;flex-wrap:wrap;flex-shrink:0;max-width:140px}
+.key{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:26px;padding:0 6px;background:linear-gradient(180deg,#2c2c2e 0%,#1d1d1f 100%);color:#f5f5f7;border-radius:4px;font-size:11px;font-weight:700;font-family:"SF Mono",Menlo,monospace;border-bottom:1.5px solid #000;letter-spacing:-.2px}
+.key.accent{background:linear-gradient(180deg,var(--accent) 0%,#c06000 100%);border-bottom-color:#9a4d00;color:#fff}
+.key.mod{font-size:9px;padding:0 4px;min-width:22px}
+.key.special{background:linear-gradient(180deg,#5a5a5e,#3a3a3c);border-bottom-color:#29292b;font-size:10px;min-width:22px}
+.desc{flex:1;min-width:0;font-size:13px;line-height:1.4}
+.detail{font-size:11px;color:var(--text2);margin-top:2px;line-height:1.3}
+.no-results{text-align:center;padding:60px 20px;color:var(--text2)}
+.no-results svg{width:40px;height:40px;margin-bottom:10px;opacity:.35}
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:rgba(245,245,247,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--border);z-index:200}
+.bottom-bar .info{font-size:11px;color:var(--text2)}
+.bottom-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer;touch-action:manipulation}
+.bottom-btn:active{opacity:.8}
+.bottom-btn svg{width:14px;height:14px}
+@media(prefers-color-scheme:dark){
+:root{--bg:#1c1c1e;--surface:#2c2c2e;--surface2:#3a3a3c;--border:#48484a;--text:#f5f5f7;--text2:#98989d;--accent-bg:rgba(234,118,0,.15);--shadow:0 .5px 2px rgba(0,0,0,.25),0 1px 4px rgba(0,0,0,.2)}
+.bottom-bar{background:rgba(28,28,30,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-top">
+    <h1><svg width="20" height="20" viewBox="0 0 32 32"><rect width="32" height="32" rx="5" fill="%23ea7600"/><text x="16" y="22" font-size="17" font-weight="bold" fill="%23fff" text-anchor="middle">B</text></svg>Blender <span>4.x</span><span class="badge" id="totalBadge">0</span></h1>
+  </div>
+  <form class="search-wrap" id="searchForm" autocomplete="off">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <input class="search-bar" id="searchInput" type="search" placeholder="搜索快捷键…" enterkeyhint="search">
+  </form>
+</div>
+<div class="tabs" id="tabsContainer"></div>
+<div class="stats"><span id="resultCount">全部</span></div>
+<div class="grid" id="grid"></div>
+<div class="no-results" id="noResults" style="display:none">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+  <div style="font-size:15px;font-weight:600;margin-bottom:3px">没有匹配的快捷键</div>
+  <div style="font-size:13px">换个关键词或分类试试</div>
+</div>
+<div class="bottom-bar">
+  <span class="info" id="bottomInfo">全部</span>
+  <button class="bottom-btn" id="scrollTopBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+    顶部
+  </button>
+</div>
+<script>
+const D=[
+  // ── 视图控制 ──
+  {keys:["中键"],desc:"视图环绕",cat:"视图控制",detail:"拖动鼠标中键环绕场景",m:true},
+  {keys:["Shift","中键"],desc:"视图平移",cat:"视图控制",detail:"按住 Shift+中键平移视图",m:true},
+  {keys:["Ctrl","中键"],desc:"视图缩放",cat:"视图控制",detail:"按住 Ctrl+中键推拉缩放",m:true},
+  {keys:["滚轮"],desc:"视图缩放",cat:"视图控制",detail:"滚动滚轮缩放视图",m:true},
+  {keys:["Numpad","0"],desc:"摄像机视图",cat:"视图控制",detail:"切换到摄像机视角"},
+  {keys:["Numpad","1"],desc:"前视图",cat:"视图控制",detail:"切换到前视图"},
+  {keys:["Numpad","3"],desc:"右视图",cat:"视图控制",detail:"切换到右视图"},
+  {keys:["Numpad","7"],desc:"顶视图",cat:"视图控制",detail:"切换到顶视图"},
+  {keys:["Ctrl","Numpad","1"],desc:"后视图",cat:"视图控制",detail:"切换到后视图"},
+  {keys:["Ctrl","Numpad","3"],desc:"左视图",cat:"视图控制",detail:"切换到左视图"},
+  {keys:["Ctrl","Numpad","7"],desc:"底视图",cat:"视图控制",detail:"切换到底视图"},
+  {keys:["Numpad","5"],desc:"透视/正交切换",cat:"视图控制",detail:"切换透视图和正交视图"},
+  {keys:["Numpad","."],desc:"聚焦选定",cat:"视图控制",detail:"将视图聚焦到选定对象"},
+  {keys:["Home"],desc:"显示全部",cat:"视图控制",detail:"最大化显示场景中全部对象"},
+  {keys:["Ctrl","Numpad","0"],desc:"设置活动摄像机",cat:"视图控制",detail:"将当前视图设为活动摄像机"},
+  {keys:["Ctrl","Alt","Numpad","0"],desc:"摄像机对齐视图",cat:"视图控制",detail:"将摄像机对齐到当前视图"},
+  {keys:["Shift","~"],desc:"视图导航",cat:"视图控制",detail:"打开视图导航饼菜单"},
+  {keys:["/"],desc:"局部视图",cat:"视图控制",detail:"将选定对象孤立显示"},
+  {keys:["Z"],desc:"着色模式切换",cat:"视图控制",detail:"长按显示着色模式饼菜单"},
+  {keys:["Shift","Z"],desc:"线框/渲染切换",cat:"视图控制",detail:"在实体和线框间切换"},
+  {keys:["Alt","Z"],desc:"X光模式",cat:"视图控制",detail:"开启/关闭透明显示"},
+  {keys:["Ctrl","Alt","Q"],desc:"四视图切换",cat:"视图控制",detail:"切换四视图/单视图布局"},
+  {keys:["`"],desc:"饼菜单",cat:"视图控制",detail:"打开视图快捷饼菜单（数字1左侧）"},
+  {keys:["Numpad","2"],desc:"向下旋转",cat:"视图控制",detail:"视图向下旋转"},
+  {keys:["Numpad","4"],desc:"向左旋转",cat:"视图控制",detail:"视图向左旋转"},
+  {keys:["Numpad","6"],desc:"向右旋转",cat:"视图控制",detail:"视图向右旋转"},
+  {keys:["Numpad","8"],desc:"向上旋转",cat:"视图控制",detail:"视图向上旋转"},
+  {keys:["Ctrl","Numpad","2"],desc:"向下平移",cat:"视图控制",detail:"视图向下平移"},
+  {keys:["Ctrl","Numpad","4"],desc:"向左平移",cat:"视图控制",detail:"视图向左平移"},
+  {keys:["Ctrl","Numpad","6"],desc:"向右平移",cat:"视图控制",detail:"视图向右平移"},
+  {keys:["Ctrl","Numpad","8"],desc:"向上平移",cat:"视图控制",detail:"视图向上平移"},
+  {keys:["Alt","B"],desc:"渲染区域",cat:"视图控制",detail:"设置渲染区域边界"},
+  {keys:["Ctrl","Alt","Z"],desc:"渲染切换",cat:"视图控制",detail:"切换到渲染视图模式"},
+
+  // ── 选择操作 ──
+  {keys:["A"],desc:"全选/取消全选",cat:"选择操作",detail:"全选或取消全部选择"},
+  {keys:["Ctrl","I"],desc:"反选",cat:"选择操作",detail:"反转当前选择"},
+  {keys:["B"],desc:"框选",cat:"选择操作",detail:"拖拽矩形框选对象"},
+  {keys:["C"],desc:"圆选",cat:"选择操作",detail:"画笔式圆形选择，滚轮调整大小"},
+  {keys:["Ctrl","+"],desc:"扩展选择",cat:"选择操作",detail:"扩展选择到相邻元素"},
+  {keys:["Ctrl","-"],desc:"收缩选择",cat:"选择操作",detail:"收缩当前选择"},
+  {keys:["L"],desc:"选择相连",cat:"选择操作",detail:"选择与当前元素相连的所有元素"},
+  {keys:["Ctrl","L"],desc:"选择全部相连",cat:"选择操作",detail:"选择与该对象连接的全部元素"},
+  {keys:["Shift","G"],desc:"选择相似",cat:"选择操作",detail:"选择相似属性的元素"},
+  {keys:["H"],desc:"隐藏选定",cat:"选择操作",detail:"隐藏选定对象"},
+  {keys:["Alt","H"],desc:"全部取消隐藏",cat:"选择操作",detail:"取消隐藏所有对象"},
+  {keys:["Shift","H"],desc:"隐藏未选定",cat:"选择操作",detail:"隐藏未选定的对象"},
+
+  // ── 变换操作 ──
+  {keys:["G"],desc:"移动",cat:"变换操作",detail:"移动（拖拽）选定对象"},
+  {keys:["R"],desc:"旋转",cat:"变换操作",detail:"旋转选定对象"},
+  {keys:["S"],desc:"缩放",cat:"变换操作",detail:"缩放选定对象"},
+  {keys:["G","X"],desc:"沿X轴移动",cat:"变换操作",detail:"移动约束到X轴方向"},
+  {keys:["G","Y"],desc:"沿Y轴移动",cat:"变换操作",detail:"移动约束到Y轴方向"},
+  {keys:["G","Z"],desc:"沿Z轴移动",cat:"变换操作",detail:"移动约束到Z轴方向"},
+  {keys:["R","X"],desc:"绕X轴旋转",cat:"变换操作",detail:"旋转约束到X轴"},
+  {keys:["R","Y"],desc:"绕Y轴旋转",cat:"变换操作",detail:"旋转约束到Y轴"},
+  {keys:["R","Z"],desc:"绕Z轴旋转",cat:"变换操作",detail:"旋转约束到Z轴"},
+  {keys:["S","X"],desc:"X轴缩放",cat:"变换操作",detail:"缩放约束到X轴方向"},
+  {keys:["S","Y"],desc:"Y轴缩放",cat:"变换操作",detail:"缩放约束到Y轴方向"},
+  {keys:["S","Z"],desc:"Z轴缩放",cat:"变换操作",detail:"缩放约束到Z轴方向"},
+  {keys:["Alt","G"],desc:"清除位置",cat:"变换操作",detail:"将位置重置到原点"},
+  {keys:["Alt","R"],desc:"清除旋转",cat:"变换操作",detail:"将旋转重置到零"},
+  {keys:["Alt","S"],desc:"清除缩放",cat:"变换操作",detail:"将缩放重置为1"},
+  {keys:["Ctrl","A"],desc:"应用变换",cat:"变换操作",detail:"应用位置/旋转/缩放为基准值"},
+  {keys:["Shift","Space"],desc:"变换工具",cat:"变换操作",detail:"快速切换变换工具"},
+  {keys:[".", "Ctrl", "Numpad"],desc:"聚焦选定",cat:"变换操作",detail:"视图聚焦到选定对象"},
+
+  // ── 编辑模式 ──
+  {keys:["Tab"],desc:"编辑模式切换",cat:"编辑模式",detail:"在物体模式和编辑模式间切换"},
+  {keys:["1"],desc:"顶点选择",cat:"编辑模式",detail:"仅选择顶点"},
+  {keys:["2"],desc:"边选择",cat:"编辑模式",detail:"仅选择边"},
+  {keys:["3"],desc:"面选择",cat:"编辑模式",detail:"仅选择面"},
+  {keys:["Ctrl","Tab"],desc:"选择模式菜单",cat:"编辑模式",detail:"打开选择模式饼菜单"},
+  {keys:["O"],desc:"衰减编辑",cat:"编辑模式",detail:"开启/关闭衰减编辑（软选择）"},
+  {keys:["Shift","O"],desc:"衰减编辑类型",cat:"编辑模式",detail:"切换衰减编辑的衰减类型"},
+  {keys:["Ctrl","R"],desc:"循环切割",cat:"编辑模式",detail:"添加循环切割边（滚轮调段数）"},
+  {keys:["K"],desc:"刀切割",cat:"编辑模式",detail:"启动刀切割工具"},
+  {keys:["E"],desc:"挤出",cat:"编辑模式",detail:"挤出选中的顶点/边/面"},
+  {keys:["I"],desc:"插入面",cat:"编辑模式",detail:"在当前面内插入新面"},
+  {keys:["Ctrl","B"],desc:"倒角",cat:"编辑模式",detail:"对选定的边/顶点进行倒角"},
+  {keys:["Ctrl","E"],desc:"边菜单",cat:"编辑模式",detail:"打开边操作菜单"},
+  {keys:["Ctrl","F"],desc:"面菜单",cat:"编辑模式",detail:"打开面操作菜单"},
+  {keys:["Ctrl","M"],desc:"镜像",cat:"编辑模式",detail:"镜像选中的元素"},
+  {keys:["Ctrl","N"],desc:"重新计算法线",cat:"编辑模式",detail:"将所有法线重算到外侧"},
+  {keys:["Ctrl","Shift","N"],desc:"翻转法线",cat:"编辑模式",detail:"翻转选中面的法线方向"},
+  {keys:["F"],desc:"创建边/面",cat:"编辑模式",detail:"从选中的顶点或边创建新边/面"},
+  {keys:["J"],desc:"连接顶点",cat:"编辑模式",detail:"用边连接两个选中的顶点"},
+  {keys:["M"],desc:"合并",cat:"编辑模式",detail:"合并选中的顶点（弹出合并菜单）"},
+  {keys:["P"],desc:"分离",cat:"编辑模式",detail:"将选中的元素分离到新对象"},
+  {keys:["V"],desc:"撕裂顶点",cat:"编辑模式",detail:"在选中的顶点处撕裂几何体"},
+  {keys:["X"],desc:"删除",cat:"编辑模式",detail:"删除选中的元素（弹出删除菜单）"},
+  {keys:["Delete"],desc:"删除",cat:"编辑模式",detail:"直接删除选中元素"},
+  {keys:["Ctrl","X"],desc:"溶解",cat:"编辑模式",detail:"溶解选中的几何体（保持网格整体）"},
+  {keys:["Ctrl","+"],desc:"扩展选区",cat:"编辑模式",detail:"扩展选择到相邻元素"},
+  {keys:["Ctrl","-"],desc:"收缩选区",cat:"编辑模式",detail:"收缩当前选择"},
+  {keys:["Shift","Ctrl","B"],desc:"顶点倒角",cat:"编辑模式",detail:"对选中的顶点进行倒角"},
+  {keys:["Alt","E"],desc:"挤出菜单",cat:"编辑模式",detail:"打开挤出方式选择菜单"},
+  {keys:["Alt","S"],desc:"收缩/膨胀",cat:"编辑模式",detail:"沿法线方向收缩或膨胀"},
+  {keys:["Alt","F"],desc:"填充",cat:"编辑模式",detail:"在选中边围成的区域创建面"},
+  {keys:["Alt","J"],desc:"三角面转四边面",cat:"编辑模式",detail:"将选中的三角面合并为四边面"},
+  {keys:["Shift","E"],desc:"折痕",cat:"编辑模式",detail:"设置细分表面折痕权重"},
+  {keys:["U"],desc:"UV展开",cat:"编辑模式",detail:"展开选定面的UV"},
+  {keys:["Y"],desc:"分割",cat:"编辑模式",detail:"分割元素到新对象"},
+  {keys:["W"],desc:"特殊菜单",cat:"编辑模式",detail:"打开特殊操作菜单"},
+  {keys:["Ctrl","Enter"],desc:"指定到顶点组",cat:"编辑模式",detail:"将选中顶点指定到活动顶点组"},
+  {keys:["Ctrl","D"],desc:"复制元素",cat:"编辑模式",detail:"在编辑模式下复制选中元素"},
+
+  // ── 修改器 ──
+  {keys:["Ctrl","1"],desc:"细分表面 1级",cat:"修改器",detail:"添加细分修改器，级别为1"},
+  {keys:["Ctrl","2"],desc:"细分表面 2级",cat:"修改器",detail:"添加细分修改器，级别为2"},
+  {keys:["Ctrl","3"],desc:"细分表面 3级",cat:"修改器",detail:"添加细分修改器，级别为3"},
+  {keys:["Ctrl","4"],desc:"细分表面 4级",cat:"修改器",detail:"添加细分修改器，级别为4"},
+  {keys:["Ctrl","5"],desc:"细分表面 5级",cat:"修改器",detail:"添加细分修改器，级别为5"},
+  {keys:["Ctrl","Shift","B"],desc:"倒角修改器",cat:"修改器",detail:"快速添加倒角修改器"},
+  {keys:["Ctrl","M"],desc:"镜像修改器",cat:"修改器",detail:"快速添加镜像修改器"},
+
+  // ── 渲染 ──
+  {keys:["F12"],desc:"渲染图像",cat:"渲染",detail:"渲染当前帧为静态图像"},
+  {keys:["Ctrl","F12"],desc:"渲染动画",cat:"渲染",detail:"渲染整个动画序列"},
+  {keys:["F3"],desc:"另存图片",cat:"渲染",detail:"保存渲染结果图像"},
+  {keys:["Ctrl","B"],desc:"设置渲染区域",cat:"渲染",detail:"设置局部渲染区域"},
+  {keys:["Ctrl","Alt","B"],desc:"清除渲染区域",cat:"渲染",detail:"清除渲染区域限制"},
+  {keys:["J"],desc:"切换渲染区域",cat:"渲染",detail:"切换渲染区域的启用状态"},
+  {keys:["Shift","S"],desc:"截图",cat:"渲染",detail:"截取当前屏幕图像"},
+  {keys:["Ctrl","Up"],desc:"最大化渲染窗口",cat:"渲染",detail:"最大化渲染预览窗口"},
+
+  // ── 动画 ──
+  {keys:["I"],desc:"插入关键帧",cat:"动画",detail:"在当前位置插入关键帧"},
+  {keys:["Alt","I"],desc:"清除关键帧",cat:"动画",detail:"移除当前位置的关键帧"},
+  {keys:["Shift","I"],desc:"插入关键帧菜单",cat:"动画",detail:"选择要插入关键帧的属性"},
+  {keys:["K"],desc:"添加中间帧",cat:"动画",detail:"添加中间过渡关键帧"},
+  {keys:["Shift","K"],desc:"清除动态",cat:"动画",detail:"清除动画数据"},
+  {keys:["Arrow","Up"],desc:"上一关键帧",cat:"动画",detail:"跳转到上一个关键帧"},
+  {keys:["Arrow","Down"],desc:"下一关键帧",cat:"动画",detail:"跳转到下一个关键帧"},
+  {keys:["Arrow","Left"],desc:"上一帧",cat:"动画",detail:"前进到上一帧"},
+  {keys:["Arrow","Right"],desc:"下一帧",cat:"动画",detail:"前进到下一帧"},
+  {keys:["Shift","Left"],desc:"跳10帧后退",cat:"动画",detail:"向后跳跃10帧"},
+  {keys:["Shift","Right"],desc:"跳10帧前进",cat:"动画",detail:"向前跳跃10帧"},
+  {keys:["Space"],desc:"播放/暂停",cat:"动画",detail:"在时间线中播放或暂停动画"},
+  {keys:["Shift","Space"],desc:"反向播放",cat:"动画",detail:"反向播放动画"},
+  {keys:["Home"],desc:"到起始帧",cat:"动画",detail:"跳转到动画起始帧"},
+  {keys:["End"],desc:"到结束帧",cat:"动画",detail:"跳转到动画结束帧"},
+  {keys:["Ctrl","Left"],desc:"上一标记",cat:"动画",detail:"跳转到上一个标记"},
+  {keys:["Ctrl","Right"],desc:"下一标记",cat:"动画",detail:"跳转到下一个标记"},
+
+  // ── 雕刻 ──
+  {keys:["F"],desc:"笔刷大小",cat:"雕刻",detail:"拖拽调整笔刷大小"},
+  {keys:["Shift","F"],desc:"笔刷强度",cat:"雕刻",detail:"拖拽调整笔刷强度"},
+  {keys:["X"],desc:"对称切换",cat:"雕刻",detail:"切换雕刻X轴对称"},
+  {keys:["Ctrl","D"],desc:"细节填充",cat:"雕刻",detail:"执行细节填充操作"},
+  {keys:["R"],desc:"清除蒙版",cat:"雕刻",detail:"清除雕刻蒙版"},
+  {keys:["A"],desc:"动态拓扑",cat:"雕刻",detail:"切换动态拓扑模式"},
+  {keys:["Shift","A"],desc:"重新拓扑",cat:"雕刻",detail:"重新计算拓扑"},
+  {keys:["M"],desc:"蒙版",cat:"雕刻",detail:"打开蒙版操作菜单"},
+  {keys:["Ctrl","I"],desc:"反转蒙版",cat:"雕刻",detail:"反转当前蒙版区域"},
+  {keys:["O"],desc:"衰减编辑",cat:"雕刻",detail:"开启衰减编辑"},
+
+  // ── 材质与纹理 ──
+  {keys:["Ctrl","Shift","T"],desc:"节点连接器",cat:"材质与纹理",detail:"节点编辑器中自动连接纹理节点"},
+  {keys:["Ctrl","T"],desc:"纹理节点",cat:"材质与纹理",detail:"快速添加纹理坐标节点"},
+  {keys:["Shift","S"],desc:"平滑/平直着色",cat:"材质与纹理",detail:"切换选定面的着色方式"},
+  {keys:["Ctrl","J"],desc:"合并材质",cat:"材质与纹理",detail:"将多个对象的材质合并"},
+
+  // ── 曲线 ├─
+  {keys:["E"],desc:"挤出曲线",cat:"曲线",detail:"挤出曲线控制点"},
+  {keys:["F"],desc:"填充",cat:"曲线",detail:"在曲线端点间创建连接"},
+  {keys:["T"],desc:"倾斜",cat:"曲线",detail:"调整曲线控制点的倾斜角度"},
+  {keys:["Alt","T"],desc:"清除倾斜",cat:"曲线",detail:"重置倾斜角度为零"},
+  {keys:["Alt","S"],desc:"半径",cat:"曲线",detail:"调整曲线控制点的半径"},
+  {keys:["V"],desc:"控制柄类型",cat:"曲线",detail:"切换贝塞尔控制柄类型"},
+  {keys:["H"],desc:"显示控制柄",cat:"曲线",detail:"切换控制柄显示状态"},
+
+  // ── 文件操作 ──
+  {keys:["Ctrl","N"],desc:"新建文件",cat:"文件操作",detail:"新建Blender文件"},
+  {keys:["Ctrl","O"],desc:"打开文件",cat:"文件操作",detail:"打开Blender文件"},
+  {keys:["Ctrl","S"],desc:"保存文件",cat:"文件操作",detail:"保存当前Blender文件"},
+  {keys:["Ctrl","Shift","S"],desc:"另存为",cat:"文件操作",detail:"将文件保存为新文件"},
+  {keys:["F4"],desc:"文件菜单",cat:"文件操作",detail:"打开文件菜单"},
+  {keys:["Ctrl","Q"],desc:"退出",cat:"文件操作",detail:"退出Blender"},
+  {keys:["Ctrl","U"],desc:"保存起始文件",cat:"文件操作",detail:"保存当前设为默认启动文件"},
+
+  // ── 工具 ──
+  {keys:["F3"],desc:"菜单搜索",cat:"工具",detail:"搜索所有菜单命令"},
+  {keys:["F9"],desc:"上次操作",cat:"工具",detail:"调出上一次操作的选项面板"},
+  {keys:["N"],desc:"侧栏切换",cat:"工具",detail:"打开/关闭右侧属性侧栏"},
+  {keys:["T"],desc:"工具栏切换",cat:"工具",detail:"打开/关闭左侧工具栏"},
+  {keys:["Ctrl","Space"],desc:"工具栏切换",cat:"工具",detail:"切换工具栏显示状态"},
+  {keys:["Shift","Space"],desc:"播放动画",cat:"工具",detail:"播放/暂停时间线动画"},
+  {keys:["Ctrl","Alt","Space"],desc:"最大化窗口",cat:"工具",detail:"最大化当前编辑器窗口"},
+  {keys:["Ctrl","Shift","Space"],desc:"切换编辑模式",cat:"工具",detail:"最大化当前区域"},
+  {keys:["Ctrl","Z"],desc:"撤销",cat:"工具",detail:"撤销上一步操作"},
+  {keys:["Ctrl","Shift","Z"],desc:"重做",cat:"工具",detail:"重做已撤销的操作"},
+  {keys:["Shift","Ctrl","Z"],desc:"重做",cat:"工具",detail:"重做（与上条效果相同）"},
+  {keys:["Ctrl","C"],desc:"复制",cat:"工具",detail:"复制对象或元素"},
+  {keys:["Ctrl","V"],desc:"粘贴",cat:"工具",detail:"粘贴对象或元素"},
+  {keys:["Ctrl","X"],desc:"剪切",cat:"工具",detail:"剪切对象"},
+  {keys:["F2"],desc:"重命名",cat:"工具",detail:"重命名选定对象"},
+  {keys:["Ctrl","P"],desc:"设置父级",cat:"工具",detail:"将选定对象设为子级"},
+  {keys:["Alt","P"],desc:"清除父级",cat:"工具",detail:"清除父级关系"},
+  {keys:["Ctrl","Shift","C"],desc:"添加约束",cat:"工具",detail:"快速添加约束"},
+  {keys:["Shift","D"],desc:"复制对象",cat:"工具",detail:"复制并移动选定对象"},
+  {keys:["Alt","D"],desc:"关联复制",cat:"工具",detail:"创建关联复制（共享网格数据）"},
+  {keys:["Ctrl","J"],desc:"合并对象",cat:"工具",detail:"合并选定对象为一个"},
+  {keys:["Ctrl","G"],desc:"成组",cat:"工具",detail:"将选定对象编组"},
+  {keys:["Shift","C"],desc:"清除游标",cat:"工具",detail:"将3D游标重置到世界原点"},
+  {keys:["Shift","S"],desc:"吸附菜单",cat:"工具",detail:"打开吸附（Snap）饼菜单"},
+  {keys:["Ctrl","F3"],desc:"导出",cat:"工具",detail:"导出选定对象"},
+  {keys:["Shift","F1"],desc:"导入",cat:"工具",detail:"导入文件到场景"},
+];
+let A="全部",Q="";
+const C=[...new Set(D.map(s=>s.cat))].sort((a,b)=>D.filter(x=>x.cat===b).length-D.filter(x=>x.cat===a).length);
+function rK(k,m){if(k==="中键"||k==="滚轮")return `<span class="key special">${k}</span>`;let c="key";if(k==="Space"||k==="Tab"||k==="Home"||k==="End"||k==="Delete"||k==="Backspace"||k==="Enter")c+=" accent";else if(m)c+=" accent";(k==="Alt"||k==="Ctrl"||k==="Shift")&&(c+=" mod");return `<span class="${c}">${k}</span>`}
+function rI(s){return `<div class="item"><div class="keys">${s.keys.map(k=>rK(k,s.keys.length>2)).join("")}</div><div class="desc">${s.desc}<div class="detail">${s.detail||""}</div></div></div>`}
+function rA(){const g=document.getElementById("grid"),n=document.getElementById("noResults"),r=document.getElementById("resultCount"),b=document.getElementById("bottomInfo");let i=D;A!=="全部"&&(i=i.filter(s=>s.cat===A));if(Q.trim()){const q=Q.trim().toLowerCase();i=i.filter(s=>(s.desc+" "+s.keys.join(" ")+" "+(s.detail||"")).toLowerCase().includes(q))}g.innerHTML=i.map(rI).join("");n.style.display=i.length?"none":"block";const t=A==="全部"?`共 ${i.length} 条`:`${A} · ${i.length} 条`;r.textContent=t;b.textContent=t}
+function rT(){const c=document.getElementById("tabsContainer"),ac=D.length;let h=`<div class="tab${A==="全部"?" active":""}" data-cat="全部">全部<span class="cnt">${ac}</span></div>`;C.forEach(cat=>{const cnt=D.filter(s=>s.cat===cat).length;h+=`<div class="tab${A===cat?" active":""}" data-cat="${cat}">${cat}<span class="cnt">${cnt}</span></div>`});c.innerHTML=h;c.querySelectorAll(".tab").forEach(el=>{el.addEventListener("click",()=>{A=el.dataset.cat;rT();rA()})})}
+document.getElementById("totalBadge").textContent=D.length;
+const si=document.getElementById("searchInput");si.addEventListener("input",()=>{Q=si.value;rA()});document.getElementById("searchForm").addEventListener("submit",e=>e.preventDefault());
+document.getElementById("scrollTopBtn").addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
+rT();rA();
+</script>
+</body>
+</html>
